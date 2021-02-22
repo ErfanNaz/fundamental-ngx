@@ -317,6 +317,13 @@ export const ROUTES: Routes = [
                     )
             },
             {
+                path: 'resizable-card-layout',
+                loadChildren: () =>
+                    import('./component-docs/resizable-card-layout/resizable-card-layout-docs.module').then(
+                        (m) => m.ResizableCardLayoutDocsModule
+                    )
+            },
+            {
                 path: 'scroll-spy',
                 loadChildren: () =>
                     import('./component-docs/scroll-spy/scroll-spy-docs.module').then((m) => m.ScrollSpyDocsModules)

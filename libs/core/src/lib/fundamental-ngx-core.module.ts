@@ -86,6 +86,7 @@ import { OnlyDigitsModule } from './utils/directives/only-digits/only-digits.mod
 import { IllustratedMessageModule } from './illustrated-message/illustrated-message.module';
 import { DynamicPageModule } from './dynamic-page/dynamic-page.module';
 import { StatusIndicatorModule } from './status-indicator/status-indicator.module';
+import { ResizableCardLayoutModule } from './resizable-card-layout/resizable-card-layout.module';
 
 @NgModule({
     imports: [CommonModule, FormsModule],
@@ -172,7 +173,8 @@ import { StatusIndicatorModule } from './status-indicator/status-indicator.modul
         SliderModule,
         OnlyDigitsModule,
         IllustratedMessageModule,
-        StatusIndicatorModule
+        StatusIndicatorModule,
+        ResizableCardLayoutModule
     ],
     providers: [AlertService, DialogService, NotificationService, MessageToastService, ThemesService]
 })
