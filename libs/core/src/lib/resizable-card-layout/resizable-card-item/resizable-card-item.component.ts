@@ -4,6 +4,7 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
+    HostListener,
     Input,
     OnDestroy,
     OnInit,
@@ -57,8 +58,8 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
     cardElementRef: ElementRef;
 
     showResizeIcon = true;
-    cardWidth: string;
-    cardHeight: string;
+    cardWidth: number;
+    cardHeight: number;
 
     private verticalHandleSub: Subscription = Subscription.EMPTY;
     private horizontalHandleSub: Subscription = Subscription.EMPTY;
@@ -66,7 +67,7 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
 
     private _prevX: number;
     private _prevY: number;
-    private _resizeStart = false;
+    private _resize = false;
 
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
@@ -76,110 +77,51 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
 
     ngOnInit(): void {}
 
-    ngAfterViewInit(): void {
-        this.register();
-
-        const rect = this.cardElementRef.nativeElement.getBoundingClientRect();
-        console.log('ngAfterViewInit rect: ', rect);
-        this._prevX = rect.x;
-        this._prevY = rect.y;
-    }
+    ngAfterViewInit(): void {}
 
     ngOnDestroy(): void {
         this.verticalHandleSub.unsubscribe();
         this.horizontalHandleSub.unsubscribe();
     }
 
-    register(): void {
-        try {
-            this.verticalHandleSub.unsubscribe();
-            this.horizontalHandleSub.unsubscribe();
-            this.cornerHandleSub.unsubscribe();
-        } catch (err) {
-        } finally {
+    onMouseDown(event: MouseEvent, resizeDirection: ResizeDirection): void {
+        event.preventDefault();
+        this._resize = true;
+        this._prevX = event.clientX;
+        this._prevY = event.clientY;
+        this.cardWidth = this.cardElementRef.nativeElement.getBoundingClientRect().width;
+        this.cardHeight = this.cardElementRef.nativeElement.getBoundingClientRect().height;
+        console.log('onMouseDown resizeDirection: ', resizeDirection);
+    }
+
+    @HostListener('window:mousemove', ['$event'])
+    onMouseMove(event: MouseEvent): void {
+        console.log('onMouseMove: ');
+        event.preventDefault();
+        if (!this._resize) {
+            return;
         }
+        // console.log('onMouseMove resizeDirection: ', resizeDirection);
+        console.log('initial this.cardWidth: ', this.cardWidth);
+        console.log('this._prevX: ', this._prevX);
+        console.log('event.clientX: ', event.clientX);
 
-        const verticalHandleEle = this.verticalHandle.nativeElement;
-        fromEvent(verticalHandleEle, 'mousedown').subscribe((e: any) => {
-            this._prevX = e.clientX;
-            this._prevY = e.clientY;
-        });
-        this.verticalHandleSub = fromEvent(verticalHandleEle, 'mousemove')
-            .pipe(skipUntil(fromEvent(verticalHandleEle, 'mousedown')))
-            .pipe(takeUntil(fromEvent(verticalHandleEle, 'mouseup')))
-            .subscribe((e: any) => {
-                this._horizontalResize(e);
-            });
-
-        const horizontalHandleEle = this.horizontalHandle.nativeElement;
-        fromEvent(horizontalHandleEle, 'mousedown').subscribe((e: any) => {
-            this._prevX = e.clientX;
-            this._prevY = e.clientY;
-        });
-        this.horizontalHandleSub = fromEvent(horizontalHandleEle, 'mousemove')
-            .pipe(skipUntil(fromEvent(horizontalHandleEle, 'mousedown')))
-            .pipe(takeUntil(fromEvent(horizontalHandleEle, 'mouseup')))
-            .subscribe((e: any) => {
-                this._verticalResize(e);
-            });
-
-        const cornerHandleEle = this.cornerHandle.nativeElement;
-        fromEvent(cornerHandleEle, 'mousedown').subscribe((e: any) => {
-            this._prevX = e.clientX;
-            this._prevY = e.clientY;
-        });
-        this.cornerHandleSub = fromEvent(cornerHandleEle, 'mousemove')
-            .pipe(skipUntil(fromEvent(cornerHandleEle, 'mousedown')))
-            .pipe(takeUntil(fromEvent(cornerHandleEle, 'mouseup')))
-            .subscribe((e: any) => {
-                this._cornerResize(e);
-            });
-    }
-
-    private _horizontalResize(event: any): void {
-        const rect = this.cardElementRef.nativeElement.getBoundingClientRect();
-        console.log('_horizontalResize rect: ', rect);
-        console.log('_horizontalResize this._prevX: ', this._prevX);
-        console.log('_horizontalResize event.clientX: ', event.clientX);
-        this.cardWidth = rect.width - (this._prevX - event.clientX) + 'px';
-        // this.cardHeight = rect.height - (this._prevY - event.clientY) + "px";
-
-        console.log('this.cardWidth: ', this.cardWidth);
-        // console.log('this.cardHeight: ', this.cardHeight);
-
-        this._prevX = event.clientX;
-        // this._prevY = event.clientY;
-        this._changeDetectorRef.markForCheck();
-    }
-
-    private _verticalResize(event: any): void {
-        const rect = this.cardElementRef.nativeElement.getBoundingClientRect();
-
-        // this.cardWidth = rect.width - (this._prevX - event.clientX) + "px";
-        this.cardHeight = rect.height - (this._prevY - event.clientY) + 'px';
-
-        // console.log('this.cardWidth: ', this.cardWidth);
-        console.log('this.cardHeight: ', this.cardHeight);
-
-        // this._prevX = event.clientX;
-        this._prevY = event.clientY;
-
-        this._changeDetectorRef.markForCheck();
-    }
-
-    private _cornerResize(event: any): void {
-        const rect = this.cardElementRef.nativeElement.getBoundingClientRect();
-
-        this.cardWidth = rect.width - (this._prevX - event.clientX) + 'px';
-        this.cardHeight = rect.height - (this._prevY - event.clientY) + 'px';
-
-        console.log('this.cardWidth: ', this.cardWidth);
-        console.log('this.cardHeight: ', this.cardHeight);
-
+        // if (resizeDirection === 'both') {
+            this.cardWidth = this.cardWidth - (this._prevX - event.clientX);
+            this.cardHeight = this.cardHeight - (this._prevY - event.clientY);
+        // } else if (resizeDirection === 'horizontal') {
+        //     this.cardWidth = this.cardWidth - (this._prevX - event.clientX);
+        // } else {
+        //     this.cardHeight = this.cardHeight - (this._prevY - event.clientY);
+        // }
+        // console.log('final this.cardWidth: ', this.cardWidth);
         this._prevX = event.clientX;
         this._prevY = event.clientY;
+    }
 
-        this._changeDetectorRef.markForCheck();
+    onMouseUp(event: MouseEvent, resizeDirection: ResizeDirection): void {
+        this._resize = false;
+        console.log('onMouseUp resizeDirection: ', resizeDirection);
     }
 
     /** Sets focus on the element */

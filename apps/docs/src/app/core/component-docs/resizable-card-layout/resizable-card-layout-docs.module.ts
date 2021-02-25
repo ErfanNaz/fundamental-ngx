@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ResizableCardLayoutModule } from '@fundamental-ngx/core';
 
 import { ApiComponent } from '../../../documentation/core-helpers/api/api.component';
 import { SharedDocumentationPageModule } from '../../../documentation/shared-documentation-page.module';
 import { API_FILES } from '../../api-files';
+
+import { ResizableCardLayoutModule, CardModule, ListModule } from '@fundamental-ngx/core';
 
 import { ResizableCardLayoutDocsHeaderComponent } from './resizable-card-layout-docs-header/resizable-card-layout-docs-header.component';
 import { ResizableCardLayoutDocsComponent } from './resizable-card-layout-docs.component';
@@ -22,7 +23,13 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes), SharedDocumentationPageModule, ResizableCardLayoutModule],
+    imports: [
+        RouterModule.forChild(routes),
+        SharedDocumentationPageModule,
+        ResizableCardLayoutModule,
+        CardModule,
+        ListModule
+    ],
     exports: [RouterModule],
     declarations: [
         ResizableCardLayoutDocsComponent,
