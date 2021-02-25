@@ -8,15 +8,10 @@ import {
     Input,
     OnDestroy,
     OnInit,
-    QueryList,
-    Renderer2,
     ViewChild
 } from '@angular/core';
 import { FocusableOption } from '@angular/cdk/a11y';
-import { fromEvent, Subscription } from 'rxjs';
-import { debounceTime, skipUntil, takeUntil } from 'rxjs/operators';
-
-import { CornerResizeDirective } from '../directives/resize-icon.directive';
+import { Subscription } from 'rxjs';
 
 export type ResizeDirection = 'vertical' | 'horizontal' | 'both';
 
@@ -63,17 +58,13 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
 
     private verticalHandleSub: Subscription = Subscription.EMPTY;
     private horizontalHandleSub: Subscription = Subscription.EMPTY;
-    private cornerHandleSub: Subscription = Subscription.EMPTY;
 
     private _prevX: number;
     private _prevY: number;
     private _resize = false;
+    private _resizeDirection: ResizeDirection;
 
-    constructor(
-        private _changeDetectorRef: ChangeDetectorRef,
-        private _elementRef: ElementRef,
-        private _renderer: Renderer2
-    ) {}
+    constructor(private _changeDetectorRef: ChangeDetectorRef, private _elementRef: ElementRef) {}
 
     ngOnInit(): void {}
 
@@ -91,7 +82,7 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
         this._prevY = event.clientY;
         this.cardWidth = this.cardElementRef.nativeElement.getBoundingClientRect().width;
         this.cardHeight = this.cardElementRef.nativeElement.getBoundingClientRect().height;
-        console.log('onMouseDown resizeDirection: ', resizeDirection);
+        this._resizeDirection = resizeDirection;
     }
 
     @HostListener('window:mousemove', ['$event'])
@@ -101,20 +92,14 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
         if (!this._resize) {
             return;
         }
-        // console.log('onMouseMove resizeDirection: ', resizeDirection);
-        console.log('initial this.cardWidth: ', this.cardWidth);
-        console.log('this._prevX: ', this._prevX);
-        console.log('event.clientX: ', event.clientX);
-
-        // if (resizeDirection === 'both') {
+        if (this._resizeDirection === 'both') {
             this.cardWidth = this.cardWidth - (this._prevX - event.clientX);
             this.cardHeight = this.cardHeight - (this._prevY - event.clientY);
-        // } else if (resizeDirection === 'horizontal') {
-        //     this.cardWidth = this.cardWidth - (this._prevX - event.clientX);
-        // } else {
-        //     this.cardHeight = this.cardHeight - (this._prevY - event.clientY);
-        // }
-        // console.log('final this.cardWidth: ', this.cardWidth);
+        } else if (this._resizeDirection === 'horizontal') {
+            this.cardWidth = this.cardWidth - (this._prevX - event.clientX);
+        } else {
+            this.cardHeight = this.cardHeight - (this._prevY - event.clientY);
+        }
         this._prevX = event.clientX;
         this._prevY = event.clientY;
     }
