@@ -4,6 +4,7 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
+    HostBinding,
     HostListener,
     Input,
     OnDestroy,
@@ -40,6 +41,18 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
     @Input()
     resizeVertical = false;
 
+    @HostBinding('style.left')
+    left = 0;
+
+    @HostBinding('style.top')
+    top = 0;
+
+    @HostBinding('style.z-index')
+    zIndex = 0;
+
+    @HostBinding('style.position')
+    position = 'absolute';
+
     @ViewChild('cornerHandle')
     cornerHandle: ElementRef;
 
@@ -52,9 +65,11 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
     @ViewChild('resizeCard')
     cardElementRef: ElementRef;
 
+    
     showResizeIcon = true;
     cardWidth: number;
     cardHeight: number;
+    showBorder = false;
 
     private verticalHandleSub: Subscription = Subscription.EMPTY;
     private horizontalHandleSub: Subscription = Subscription.EMPTY;
@@ -77,6 +92,7 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
 
     onMouseDown(event: MouseEvent, resizeDirection: ResizeDirection): void {
         event.preventDefault();
+        this.showBorder = true;
         this._resize = true;
         this._prevX = event.clientX;
         this._prevY = event.clientY;
@@ -87,11 +103,12 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
 
     @HostListener('window:mousemove', ['$event'])
     onMouseMove(event: MouseEvent): void {
-        console.log('onMouseMove: ');
         event.preventDefault();
         if (!this._resize) {
             return;
         }
+        this.zIndex = 1;
+
         if (this._resizeDirection === 'both') {
             this.cardWidth = this.cardWidth - (this._prevX - event.clientX);
             this.cardHeight = this.cardHeight - (this._prevY - event.clientY);
@@ -106,6 +123,8 @@ export class ResizableCardItemComponent implements OnInit, AfterViewInit, OnDest
 
     onMouseUp(event: MouseEvent, resizeDirection: ResizeDirection): void {
         this._resize = false;
+        this.zIndex = 0;
+        this.showBorder = false;
         console.log('onMouseUp resizeDirection: ', resizeDirection);
     }
 
