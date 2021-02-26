@@ -9,4 +9,15 @@
     display: inline-flex !important;
     max-width: 100%;
     max-height: 100%;
+    margin: 0 !important;
+    padding: 0.5rem !important;
+}
+
+.fd-resizable-card-layout__resize--horizontal {
+    z-index: 2;
+    bottom: 0.5rem;
+}
+
+.fd-resizable-card-layout__icon {
+    z-index: 2;
 }

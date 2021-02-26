@@ -1,51 +1,173 @@
-<fd-resizable-card-layout>
-    <fd-card *fdRsCardDef>
-        <fd-card-header>
-            <h2 fd-card-title>Card Title</h2>
-        </fd-card-header>
-        <fd-card-content>
-            <ul fd-list [noBorder]="true">
-                <li fd-list-item>
-                    <span fd-list-title>
-                        item 1
-                    </span>
-                </li>
-                <li fd-list-item>
-                    <span fd-list-title>
-                        item 2
-                    </span>
-                </li>
-                <li fd-list-item>
-                    <span fd-list-title>
-                        item 3
-                    </span>
-                </li>
-            </ul>
-        </fd-card-content>
-    </fd-card>
+<fd-segmented-button [(ngModel)]="layoutSize" (ngModelChange)="openDialog(dialogTemplate)">
+    <button fd-button value="xl">XLarge Screen</button>
+    <button fd-button value="lg">Large Screen</button>
+    <button fd-button value="md">Medium Screen</button>
+    <button fd-button value="sm">Small Screen</button>
+</fd-segmented-button>
 
-    <fd-card *fdRsCardDef>
-        <fd-card-header>
-            <h2 fd-card-title>Card Title</h2>
-        </fd-card-header>
-        <fd-card-content>
-            <ul fd-list [noBorder]="true">
-                <li fd-list-item>
-                    <span fd-list-title>
-                        item 1
-                    </span>
-                </li>
-                <li fd-list-item>
-                    <span fd-list-title>
-                        item 2
-                    </span>
-                </li>
-                <li fd-list-item>
-                    <span fd-list-title>
-                        item 3
-                    </span>
-                </li>
-            </ul>
-        </fd-card-content>
-    </fd-card>
-</fd-resizable-card-layout>
+<ng-template let-dialog let-dialogConfig="dialogConfig" #dialogTemplate>
+    <fd-dialog [dialogConfig]="dialogConfig" [dialogRef]="dialog">
+        <fd-dialog-header>
+            <h1 fd-title>Resizable card layout</h1>
+            <button fd-dialog-close-button (click)="dialog.dismiss('Close button')"></button>
+        </fd-dialog-header>
+
+        <fd-dialog-body>
+            <fd-resizable-card-layout [layoutSize]="layoutSize">
+                <fd-resizable-card-item title="card1" [rank]="1" [cardWidth]="320" [cardHeight]="400"
+                    [miniHeaderHeight]="80" [miniContentHeight]="150">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 1</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+
+                <fd-resizable-card-item title="card2" [rank]="2" [cardWidth]="320" [cardHeight]="300"
+                    [miniHeaderHeight]="80" [miniContentHeight]="100">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 2</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+
+                <fd-resizable-card-item title="card3" [rank]="3" [cardWidth]="640" [cardHeight]="225"
+                    [miniHeaderHeight]="80" [miniContentHeight]="100">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 3</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+
+                <fd-resizable-card-item title="card4" [rank]="4" [cardWidth]="640" [cardHeight]="225"
+                    [miniHeaderHeight]="80" [miniContentHeight]="100">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 4</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+
+                <fd-resizable-card-item title="card5" [rank]="5" [cardWidth]="320" [cardHeight]="225"
+                    [miniHeaderHeight]="80" [miniContentHeight]="100">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 5</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+
+                <fd-resizable-card-item title="card6" [rank]="6" [cardWidth]="640" [cardHeight]="225"
+                    [miniHeaderHeight]="80" [miniContentHeight]="100">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 6</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+
+                <fd-resizable-card-item title="card7" [rank]="7" [cardWidth]="640" [cardHeight]="225"
+                    [miniHeaderHeight]="80" [miniContentHeight]="100">
+                    <fd-card>
+                        <fd-card-header>
+                            <h2 fd-card-title>Card Title 7</h2>
+                        </fd-card-header>
+                        <fd-card-content>
+                            <ul fd-list [noBorder]="true">
+                                <li fd-list-item>
+                                    <span fd-list-title> item 1 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 2 </span>
+                                </li>
+                                <li fd-list-item>
+                                    <span fd-list-title> item 3 </span>
+                                </li>
+                            </ul>
+                        </fd-card-content>
+                    </fd-card>
+                </fd-resizable-card-item>
+            </fd-resizable-card-layout>
+        </fd-dialog-body>
+    </fd-dialog>
+</ng-template>
