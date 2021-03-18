@@ -16,6 +16,8 @@ import {
 import { ResizableCardLayoutDocsHeaderComponent } from './resizable-card-layout-docs-header/resizable-card-layout-docs-header.component';
 import { ResizableCardLayoutDocsComponent } from './resizable-card-layout-docs.component';
 import { ResizableCardLayoutExampleComponent } from './examples/resizable-card-layout-example.component';
+import { ResizableCardLayoutExampleLayoutConfigComponent } from './examples/resizable-card-layout-example-layoutconfig.component';
+import { ResizableCardLayoutExampleItemConfigComponent } from './examples/resizable-card-layout-example-itemconfig.component';
 
 const routes: Routes = [
     {
@@ -42,7 +44,9 @@ const routes: Routes = [
     declarations: [
         ResizableCardLayoutDocsComponent,
         ResizableCardLayoutDocsHeaderComponent,
-        ResizableCardLayoutExampleComponent
+        ResizableCardLayoutExampleComponent,
+        ResizableCardLayoutExampleLayoutConfigComponent,
+        ResizableCardLayoutExampleItemConfigComponent
     ]
 })
 export class ResizableCardLayoutDocsModule {}

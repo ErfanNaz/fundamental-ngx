@@ -2,4 +2,27 @@
 
 .fd-resizable-card-layout {
     position: relative;
+    margin-top: 1rem !important;
+}
+
+// overriding values coming from style
+// TODO: raise fix in fundamental-styles
+.fd-resizable-card-layout--sm {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+.fd-resizable-card-layout--md {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.fd-resizable-card-layout--lg {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.fd-resizable-card-layout--xl {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
 }

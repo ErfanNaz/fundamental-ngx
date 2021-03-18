@@ -1,11 +1,11 @@
-<fd-segmented-button [(ngModel)]="layoutSize" (ngModelChange)="openDialog(dialogTemplate)">
+<fd-segmented-button [(ngModel)]="layoutSize" (ngModelChange)="openDialog(dialogTemplate3)">
     <button fd-button value="xl">XLarge Screen</button>
     <button fd-button value="lg">Large Screen</button>
     <button fd-button value="md">Medium Screen</button>
     <button fd-button value="sm">Small Screen</button>
 </fd-segmented-button>
 
-<ng-template let-dialog let-dialogConfig="dialogConfig" #dialogTemplate>
+<ng-template let-dialog let-dialogConfig="dialogConfig" #dialogTemplate3>
     <fd-dialog [dialogConfig]="dialogConfig" [dialogRef]="dialog">
         <fd-dialog-header>
             <h1 fd-title>Resizable card layout</h1>
@@ -14,9 +14,8 @@
 
         <fd-dialog-body class="fd-docs-cursor">
             <div class="fd-docs-center-align">
-                <fd-resizable-card-layout [layoutSize]="layoutSize">
-                    <fd-resizable-card-item title="card1" [rank]="1" [cardWidthColSpan]="1" [cardHeightRowSpan]="25"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="10">
+                <fd-resizable-card-layout [layoutConfig]="layoutConfig" [layoutSize]="layoutSize">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 1</h2>
@@ -37,8 +36,7 @@
                         </fd-card>
                     </fd-resizable-card-item>
 
-                    <fd-resizable-card-item title="card2" [rank]="2" [cardWidthColSpan]="1" [cardHeightRowSpan]="19"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="8">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 2</h2>
@@ -59,8 +57,7 @@
                         </fd-card>
                     </fd-resizable-card-item>
 
-                    <fd-resizable-card-item title="card3" [rank]="3" [cardWidthColSpan]="2" [cardHeightRowSpan]="14"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="8">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 3</h2>
@@ -81,8 +78,7 @@
                         </fd-card>
                     </fd-resizable-card-item>
 
-                    <fd-resizable-card-item title="card4" [rank]="4" [cardWidthColSpan]="2" [cardHeightRowSpan]="14"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="8">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 4</h2>
@@ -103,8 +99,7 @@
                         </fd-card>
                     </fd-resizable-card-item>
 
-                    <fd-resizable-card-item title="card5" [rank]="5" [cardWidthColSpan]="3" [cardHeightRowSpan]="14"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="10">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 5</h2>
@@ -125,8 +120,7 @@
                         </fd-card>
                     </fd-resizable-card-item>
 
-                    <fd-resizable-card-item title="card6" [rank]="6" [cardWidthColSpan]="4" [cardHeightRowSpan]="14"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="8">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 6</h2>
@@ -147,8 +141,7 @@
                         </fd-card>
                     </fd-resizable-card-item>
 
-                    <fd-resizable-card-item title="card7" [rank]="7" [cardWidthColSpan]="1" [cardHeightRowSpan]="14"
-                        [cardMiniHeaderRowSpan]="5" [cardMiniContentRowSpan]="10">
+                    <fd-resizable-card-item>
                         <fd-card>
                             <fd-card-header>
                                 <h2 fd-card-title>Card Title 7</h2>

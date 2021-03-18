@@ -341,7 +341,6 @@ export const API_FILES = {
     statusIndicator: ['StatusIndicatorComponent'],
     resizableCardLayout: [
         'ResizableCardLayoutComponent',
-        'ResizableCardItemComponent',
-        'ResizableCardDefinitionDirective'
+        'ResizableCardItemComponent'
     ]
 };
