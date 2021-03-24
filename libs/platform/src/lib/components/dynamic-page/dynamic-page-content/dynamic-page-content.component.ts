@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { TabPanelComponent } from '@fundamental-ngx/core';
 
-import { DynamicPageBackgroundType, CLASS_NAME, DynamicPageResponsiveSize } from '../constants';
+import { CLASS_NAME } from '../constants';
 import { addClassNameToElement } from '../utils';
 
 /** Dynamic Page tab change event */
@@ -41,37 +41,8 @@ export class DynamicPageContentComponent implements OnInit {
     id: string;
 
     /**
-     * sets background for content to `list`, `transparent`, or `solid` background color.
-     * Default is `solid`.
+     * event for tab changes
      */
-    @Input()
-    set background(backgroundType: DynamicPageBackgroundType) {
-        if (backgroundType) {
-            this._background = backgroundType;
-            this._setBackgroundStyles(backgroundType);
-        }
-    }
-
-    get background(): DynamicPageBackgroundType {
-        return this._background;
-    }
-
-    /**
-     * sets size which in turn adds corresponding padding for the size type.
-     * size can be `small`, `medium`, `large`, or `extra-large`.
-     */
-    @Input()
-    set size(sizeType: DynamicPageResponsiveSize) {
-        if (sizeType) {
-            this._size = sizeType;
-            this._setSize(sizeType);
-        }
-    }
-
-    get size(): DynamicPageResponsiveSize {
-        return this._size;
-    }
-
     @Output()
     tabChange: EventEmitter<DynamicPageTabChangeEvent> = new EventEmitter<DynamicPageTabChangeEvent>();
 
@@ -80,30 +51,12 @@ export class DynamicPageContentComponent implements OnInit {
      */
     @ViewChild(TemplateRef) contentTemplate: TemplateRef<any>;
 
-    /**
-     * @hidden
-     * tracking the background value
-     */
-    private _background: DynamicPageBackgroundType;
-
-    /**
-     * @hidden
-     * tracks the size for responsive padding
-     */
-    private _size: DynamicPageResponsiveSize;
-
     /** @hidden */
     constructor(public _elementRef: ElementRef<HTMLElement>, public _renderer: Renderer2) {}
 
     /**@hidden */
     ngOnInit(): void {
         this._addClassNameToHostElement(CLASS_NAME.dynamicPageContent);
-        if (this.background) {
-            this._setBackgroundStyles(this.background);
-        }
-        if (this.size) {
-            this._setSize(this.size);
-        }
     }
 
     /**
@@ -111,55 +64,6 @@ export class DynamicPageContentComponent implements OnInit {
      */
     getElementRef(): ElementRef<HTMLElement> {
         return this._elementRef;
-    }
-
-    /**
-     * @hidden
-     * sets the style classes for background property
-     * @param background
-     */
-    private _setBackgroundStyles(background: DynamicPageBackgroundType): void {
-        switch (background) {
-            case 'transparent':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageContentTransparentBg);
-                break;
-            case 'list':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageContentListBg);
-                break;
-            case 'solid':
-            default:
-                this._removeClassNameToHostElement(CLASS_NAME.dynamicPageContentTransparentBg);
-                this._removeClassNameToHostElement(CLASS_NAME.dynamicPageContentListBg);
-                break;
-        }
-    }
-
-    /**
-     * @hidden
-     * sets the padding classes
-     * @param sizeType
-     */
-    private _setSize(sizeType: DynamicPageResponsiveSize): void {
-        switch (sizeType) {
-            case 'small':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageContentAreaSmall);
-                break;
-            case 'medium':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageContentAreaMedium);
-                break;
-            case 'large':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageContentAreaLarge);
-                break;
-            case 'extra-large':
-            default:
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageContentAreaExtraLarge);
-                break;
-        }
-    }
-
-    /**@hidden */
-    private _removeClassNameToHostElement(className: string): void {
-        this._renderer.removeClass(this._elementRef.nativeElement, className);
     }
 
     /**@hidden */

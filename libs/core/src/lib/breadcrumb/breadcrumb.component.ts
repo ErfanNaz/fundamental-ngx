@@ -81,7 +81,7 @@ export class BreadcrumbComponent implements AfterContentInit, OnInit {
     /** @hidden */
     @HostListener('window:resize', [])
     onResize(): void {
-        this.containerBoundary = this.elementRef.nativeElement.parentElement.getBoundingClientRect().width;
+        this.containerBoundary = this.elementRef.nativeElement.parentElement?.getBoundingClientRect().width;
         if (this.containerElement) {
             this.containerBoundary = this.containerElement.getBoundingClientRect().width;
         }

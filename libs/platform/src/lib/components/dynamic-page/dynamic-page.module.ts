@@ -1,8 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-
-import { TabsModule } from '@fundamental-ngx/core';
-
+import {
+    AvatarModule,
+    FacetModule,
+    PopoverModule,
+    RatingIndicatorModule,
+    TabsModule,
+    TitleModule,
+    ToolbarModule
+} from '@fundamental-ngx/core';
 import { PlatformButtonModule } from '../button/public_api';
 import { DynamicPageContentComponent } from './dynamic-page-content/dynamic-page-content.component';
 import { DynamicPageTabbedContentComponent } from './dynamic-page-content/dynamic-page-tabbed-content.component';
@@ -26,7 +32,17 @@ import { DynamicPageComponent } from './dynamic-page.component';
         DynamicPageTabbedContentComponent,
         DynamicPageFooterComponent
     ],
-    imports: [CommonModule, TabsModule, PlatformButtonModule],
+    imports: [
+        CommonModule,
+        TabsModule,
+        AvatarModule,
+        PlatformButtonModule,
+        TitleModule,
+        RatingIndicatorModule,
+        FacetModule,
+        ToolbarModule,
+        PopoverModule
+    ],
     exports: [
         DynamicPageComponent,
         DynamicPageTitleComponent,

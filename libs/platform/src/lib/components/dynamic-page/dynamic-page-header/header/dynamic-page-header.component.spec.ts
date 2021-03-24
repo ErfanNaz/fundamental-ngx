@@ -5,6 +5,7 @@ import { DynamicPageService } from '../../dynamic-page.service';
 import { By } from '@angular/platform-browser';
 import { PlatformDynamicPageModule } from '../../dynamic-page.module';
 import { DynamicPageHeaderComponent } from './dynamic-page-header.component';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 
 @Component({
     template: `<fdp-dynamic-page-header
@@ -31,6 +32,7 @@ class TestComponent {
     background = '';
 
     @ViewChild(DynamicPageHeaderComponent) dynamicPageTitleComponent: DynamicPageHeaderComponent;
+    constructor(public dynamicPageService: DynamicPageService, public ruler: ViewportRuler) {}
 }
 
 describe('DynamicPageHeaderComponent', () => {
@@ -38,13 +40,15 @@ describe('DynamicPageHeaderComponent', () => {
     let pageHeaderComponent: DynamicPageHeaderComponent;
     let component: TestComponent;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            imports: [CommonModule, PlatformDynamicPageModule],
-            declarations: [TestComponent],
-            providers: [DynamicPageService]
-        }).compileComponents();
-    }));
+    beforeEach(
+        waitForAsync(() => {
+            TestBed.configureTestingModule({
+                imports: [CommonModule, PlatformDynamicPageModule],
+                declarations: [TestComponent],
+                providers: [DynamicPageService]
+            }).compileComponents();
+        })
+    );
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestComponent);
@@ -109,6 +113,14 @@ describe('DynamicPageHeaderComponent', () => {
             ).nativeElement;
             expect(collapseBtn.getAttribute('aria-label')).toBe(component.collapseLabel);
         });
+
+        it('should handle collapse from service', () => {
+            component.collapsed = false;
+            component.dynamicPageService.collapseHeader();
+
+            fixture.detectChanges();
+            expect(pageHeaderComponent.collapsed).toBeTrue();
+        });
     });
     describe('pin actions', async () => {
         it('should be able to pin the header', async () => {
@@ -122,35 +134,17 @@ describe('DynamicPageHeaderComponent', () => {
             expect(contentEl.length).toBe(1);
         });
     });
-    describe('page header area', () => {
-        it('should set size', async () => {
-            const headerElement = fixture.debugElement.query(By.css('.fd-dynamic-page__collapsible-header'));
-            expect(
-                headerElement.nativeElement.classList.contains('fd-dynamic-page__collapsible-header--md')
-            ).toBeTruthy();
-            component.size = 'large';
-            fixture.detectChanges();
-            expect(
-                headerElement.nativeElement.classList.contains('fd-dynamic-page__collapsible-header--lg')
-            ).toBeTruthy();
-            component.size = 'small';
-            fixture.detectChanges();
-            expect(
-                headerElement.nativeElement.classList.contains('fd-dynamic-page__collapsible-header--sm')
-            ).toBeTruthy();
-        });
-        it('should set background styles', async () => {
-            const headerElement = fixture.debugElement.query(By.css('.fd-dynamic-page__collapsible-header'));
-            component.background = 'transparent';
-            fixture.detectChanges();
-            expect(
-                headerElement.nativeElement.classList.contains('fd-dynamic-page__collapsible-header--transparent-bg')
-            ).toBeTruthy();
-            component.background = 'solid';
-            fixture.detectChanges();
-            expect(
-                headerElement.nativeElement.classList.contains('fd-dynamic-page__collapsible-header--transparent-bg')
-            ).toBeFalsy();
-        });
+
+    it('should apply correct facet classes when the window is resized to small', () => {
+        const spy = jasmine.createSpy('_modifyFacetClasses');
+        const subscription = component.ruler.change(0).subscribe(spy);
+
+        spyOn(component.dynamicPageTitleComponent.elementRef().nativeElement, 'getBoundingClientRect')
+        .and.returnValue({ top: 1, height: 100, left: 2, width: 200, right: 202, x: 0, y: 0, bottom: 0, toJSON: null });
+        window.dispatchEvent(new Event('resize'));
+        fixture.detectChanges();
+
+        expect(spy).toHaveBeenCalled();
+        subscription.unsubscribe();
     });
 });

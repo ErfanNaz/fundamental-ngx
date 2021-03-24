@@ -1,21 +1,30 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
+    ContentChild,
     ElementRef,
     Input,
     NgZone,
+    OnDestroy,
     OnInit,
     Renderer2,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+import { BreadcrumbComponent, DynamicPageResponsiveSize, FacetComponent } from '@fundamental-ngx/core';
+import { Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-import { DynamicPageBackgroundType, CLASS_NAME, DynamicPageResponsiveSize } from '../../constants';
+import { CLASS_NAME, TOOLBAR_ACTIONS_SQUASH_BREAKPOINT_PX } from '../../constants';
 import { DynamicPageService } from '../../dynamic-page.service';
 import { addClassNameToElement, removeClassNameFromElement } from '../../utils';
+import { DynamicPageGlobalActionsComponent } from '../actions/global-actions/dynamic-page-global-actions.component';
+import { DynamicPageKeyInfoComponent } from '../key-info/dynamic-page-key-info.component';
 
 @Component({
     selector: 'fdp-dynamic-page-title',
@@ -23,38 +32,60 @@ import { addClassNameToElement, removeClassNameFromElement } from '../../utils';
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None
 })
-export class DynamicPageTitleComponent implements OnInit, AfterViewInit {
+export class DynamicPageTitleComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input()
     title: string;
 
     @Input()
     subtitle: string;
 
-    /**
-     * sets background for content to `list`, `transparent`, or `solid` background color.
-     * Default is `solid`.
-     */
+    /** Whether should be on compact mode */
     @Input()
-    set background(backgroundType: DynamicPageBackgroundType) {
-        if (backgroundType) {
-            this._background = backgroundType;
-            this._setBackgroundStyles(backgroundType);
-        }
-    }
+    compact = false;
 
-    get background(): DynamicPageBackgroundType {
-        return this._background;
-    }
+    /**
+     * @hidden
+     * the reference to breadcrumb title container
+     */
+    @ViewChild('breadcrumbTitleContainer')
+    breadcrumbTitleContainer: ElementRef<HTMLElement>;
+
+    /** @hidden */
+    @ContentChild(BreadcrumbComponent)
+    _breadcrumbComponent: BreadcrumbComponent;
+
+    /** @hidden */
+    @ContentChild(DynamicPageGlobalActionsComponent)
+    _globalActions: DynamicPageGlobalActionsComponent;
+
+    /** @hidden */
+    @ContentChild(DynamicPageKeyInfoComponent)
+    _contentToolbar: DynamicPageKeyInfoComponent;
+
+    /**
+     * @hidden
+     * the reference to the title element
+     */
+    @ViewChild('titleRef')
+    titleRef: ElementRef<any>;
+
+    /** @hidden */
+    _actionsSquashed = false;
+
+    _hasImageFacet = false;
+
+    _isHeaderCollapsed = false;
 
     /**
      * sets size which in turn adds corresponding padding for the size type.
      * size can be `small`, `medium`, `large`, or `extra-large`.
      */
-    @Input()
     set size(sizeType: DynamicPageResponsiveSize) {
         if (sizeType) {
             this._size = sizeType;
-            this._setSize(sizeType);
+            this._globalActions?._setSize(sizeType);
+            this._breadcrumbComponent?.onResize();
+            this._cd.detectChanges();
         }
     }
 
@@ -64,43 +95,36 @@ export class DynamicPageTitleComponent implements OnInit, AfterViewInit {
 
     /**
      * @hidden
-     * the reference to breadcrumb title container
-     */
-    @ViewChild('breadcrumbTitleContainer')
-    breadcrumbTitleContainer: ElementRef<HTMLElement>;
-
-    /**
-     * @hidden
-     * the reference to the title element
-     */
-    @ViewChild('titleRef')
-    titleRef: ElementRef<any>;
-
-    /**
-     * @hidden
-     * tracking the background value
-     */
-    private _background: DynamicPageBackgroundType;
-
-    /**
-     * @hidden
      * tracks the size for responsive padding
      */
-    private _size: DynamicPageResponsiveSize;
+    _size: DynamicPageResponsiveSize;
+
+    @ContentChild(FacetComponent)
+    private _facetComponent: FacetComponent;
+
+    /**
+     * subscription for when collapse value has changed
+     */
+    private _collapseValSubscription: Subscription = new Subscription();
 
     /** @hidden */
     constructor(
         private _elementRef: ElementRef<HTMLElement>,
         private _renderer: Renderer2,
         private _focusMonitor: FocusMonitor,
+        private _cd: ChangeDetectorRef,
         private _dynamicPageService: DynamicPageService,
-        private _ngZone: NgZone
+        private _ngZone: NgZone,
+        private _ruler: ViewportRuler
     ) {}
 
     /** @hidden */
     ngOnInit(): void {
         this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleArea);
         this._setAttributeToHostElement('tabindex', 0);
+        this._listenToResize();
+        // add --collapsed modifier to title area when header is collapsed
+        this._addCollapsedStyleTitleAreaSubscription();
     }
 
     /** @hidden */
@@ -112,20 +136,30 @@ export class DynamicPageTitleComponent implements OnInit, AfterViewInit {
                 }
             })
         );
-
-        const breadcrumb = this._elementRef.nativeElement.querySelector('fd-breadcrumb');
-        if (breadcrumb) {
-            this._addClassNameToCustomElement(breadcrumb, CLASS_NAME.dynamicPageBreadcrumb);
-            this.breadcrumbTitleContainer.nativeElement.style.overflow = 'hidden';
+        // add breadcrumb styles
+        if (this._breadcrumbComponent) {
+            this._addClassNameToCustomElement(
+                this._breadcrumbComponent.elementRef.nativeElement,
+                CLASS_NAME.dynamicPageBreadcrumb
+            );
+            this._breadcrumbComponent.onResize();
         }
 
-        if (this.background) {
-            this._setBackgroundStyles(this.background);
-        }
+        this._squashActions();
 
-        if (this.size) {
-            this._setSize(this.size);
+        if (!this._facetComponent) {
+            return;
         }
+        if (this._facetComponent.type === 'image') {
+            this._hasImageFacet = true; // change the structure to hold facet
+            // add bottom margin styles when image facet is used in object/dynamic page
+            this._addFacetStyles();
+        }
+    }
+
+    /** @hidden */
+    ngOnDestroy(): void {
+        this._collapseValSubscription.unsubscribe();
     }
 
     /**
@@ -135,52 +169,67 @@ export class DynamicPageTitleComponent implements OnInit, AfterViewInit {
         return this._elementRef;
     }
 
-    /**
-     * @hidden
-     * sets the style classes for background property
-     * @param background
+    /** @hidden */
+    stopPropagation(event: MouseEvent): void {
+        event.stopPropagation();
+    }
+
+    /**@hidden
+     * squash toolbar actions when window is resized below 1280px
      */
-    private _setBackgroundStyles(background: DynamicPageBackgroundType): any {
-        switch (background) {
-            case 'transparent':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleAreaTransparentBg);
-                break;
-            case 'list':
-            case 'solid':
-            default:
-                removeClassNameFromElement(
-                    this._renderer,
-                    this._elementRef.nativeElement,
-                    CLASS_NAME.dynamicPageTitleAreaTransparentBg
-                );
-                break;
+    _squashActions(): void {
+        const widthPx = this._ruler?.getViewportSize().width;
+        const actionsSquashed: boolean =
+            widthPx < TOOLBAR_ACTIONS_SQUASH_BREAKPOINT_PX || this.size === 'small' || this.size === 'medium';
+        if (actionsSquashed !== this._actionsSquashed) {
+            this._actionsSquashed = actionsSquashed;
+            this._cd.detectChanges();
         }
     }
 
-    /**
-     * @hidden
-     * sets the padding classes
-     * @param sizeType
+    /** @hidden
+     * add/remove facet styles for image facet when it is placed next to title
      */
-    private _setSize(sizeType: DynamicPageResponsiveSize): any {
-        switch (sizeType) {
-            case 'small':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleAreaSmall);
-                break;
-            case 'medium':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleAreaMedium);
-                if (this.titleRef) {
-                    this._addClassNameToCustomElement(this.titleRef.nativeElement, CLASS_NAME.dynamicPageTitleMedium);
-                }
-                break;
-            case 'large':
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleAreaLarge);
-                break;
-            case 'extra-large':
-            default:
-                this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleAreaExtraLarge);
-                break;
+    private _addFacetStyles(): void {
+        this._facetComponent.elementRef().nativeElement.classList.remove(`fd-margin-end--md`);
+        this._facetComponent.elementRef().nativeElement.classList.add(`fd-margin-end--sm`);
+        this._facetComponent.elementRef().nativeElement.classList.add(`fd-facet--image-header-title`);
+    }
+
+    /** @hidden
+     * if collapsed, add dynamicPageTitleAreaCollapsed style for padding bottom
+     */
+    private _addCollapsedStyleTitleAreaSubscription(): void {
+        this._addCollapsedStyleTitleArea(this._dynamicPageService.getIsCollapsed());
+
+        if (this._collapseValSubscription) {
+            this._collapseValSubscription.unsubscribe();
         }
+        this._collapseValSubscription = this._dynamicPageService.$collapseValue.subscribe((val) => {
+            this._isHeaderCollapsed = val;
+            this._addCollapsedStyleTitleArea(val);
+            this._cd.detectChanges();
+        });
+    }
+
+    /** @hidden */
+    private _addCollapsedStyleTitleArea(val: boolean): void {
+        if (val) {
+            this._addClassNameToHostElement(CLASS_NAME.dynamicPageTitleAreaCollapsed);
+        } else {
+            removeClassNameFromElement(
+                this._renderer,
+                this._elementRef.nativeElement,
+                CLASS_NAME.dynamicPageTitleAreaCollapsed
+            );
+        }
+    }
+
+    /**@hidden */
+    private _listenToResize(): void {
+        this._ruler.change().subscribe(() => {
+            this._squashActions();
+        });
     }
 
     /**@hidden */

@@ -10,7 +10,7 @@ import {
 } from '@fundamental-ngx/platform';
 
 @Component({
-    template: ` <fdp-dynamic-page-tabbed-content [background]="background" [size]="size">
+    template: ` <fdp-dynamic-page-tabbed-content>
         This is a tabbed content
     </fdp-dynamic-page-tabbed-content>`
 })
@@ -45,23 +45,11 @@ describe('DynamicPageTabbedContentComponent', () => {
     });
 
     describe('tabs and tab content', () => {
-        it('should set size', async () => {
-            component.size = 'large';
+        it('should set correct class', async () => {
             fixture.detectChanges();
             const tabsContentContainer = fixture.debugElement.query(By.css('.' + CLASS_NAME.dynamicPageContent))
                 .nativeElement;
-            expect(tabsContentContainer.classList.contains(CLASS_NAME.dynamicPageContentAreaLarge)).toBeTruthy();
-            component.size = 'small';
-            fixture.detectChanges();
-            expect(tabsContentContainer.classList.contains(CLASS_NAME.dynamicPageContentAreaSmall)).toBeTruthy();
-        });
-        it('should set background styles', async () => {
-            const tabsContentContainer = fixture.debugElement.query(By.css('.' + CLASS_NAME.dynamicPageContent))
-                .nativeElement;
-            expect(tabsContentContainer.classList.contains(CLASS_NAME.dynamicPageContentListBg)).toBeFalsy();
-            component.background = 'list';
-            fixture.detectChanges();
-            expect(tabsContentContainer.classList.contains(CLASS_NAME.dynamicPageContentListBg)).toBeTruthy();
+            expect(tabsContentContainer).toBeTruthy();
         });
     });
 

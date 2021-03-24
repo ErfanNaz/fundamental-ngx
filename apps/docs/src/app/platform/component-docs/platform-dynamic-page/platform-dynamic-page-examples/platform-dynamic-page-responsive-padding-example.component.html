@@ -2,7 +2,7 @@
 <div class="overlay" #overlay>
     <ng-container *ngIf="fullscreen">
         <div class="overlay-content">
-            <fdp-dynamic-page size="small" ariaLabel="Example Dynamic Page">
+            <fdp-dynamic-page size="medium" ariaLabel="Example Dynamic Page" [autoResponsive]="false">
                 <fdp-dynamic-page-title
                     [title]="pageTitle"
                     subtitle="Oversized multimaterial sneakers with quilted effect"
@@ -48,12 +48,12 @@
                                 label="Reject"
                                 title="Reject"
                             ></button>
-                            <fd-toolbar-separator></fd-toolbar-separator>
                         </fd-toolbar>
                     </fdp-dynamic-page-global-actions>
                     <fdp-dynamic-page-layout-actions>
                         <!-- layout actions -->
                         <fd-toolbar fdType="transparent" [clearBorder]="true">
+                            <fd-toolbar-separator></fd-toolbar-separator>
                             <button
                                 fd-button
                                 fdType="transparent"

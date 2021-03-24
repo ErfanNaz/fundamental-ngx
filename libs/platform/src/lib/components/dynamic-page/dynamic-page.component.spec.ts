@@ -59,14 +59,16 @@ describe('DynamicPageComponent default values', () => {
     let dynamicPageTitleComponent: DynamicPageTitleComponent;
     let dynamicPageContentComponent: DynamicPageContentComponent;
 
-    beforeEach(waitForAsync(() => {
-        const scrollableSpy = jasmine.createSpyObj('DynamicPageService', ['expandHeader', 'collapseHeader']);
-        TestBed.configureTestingModule({
-            imports: [CommonModule, PlatformDynamicPageModule, ToolbarModule],
-            declarations: [TestComponent],
-            providers: [{ provide: DynamicPageService, useValue: scrollableSpy }]
-        }).compileComponents();
-    }));
+    beforeEach(
+        waitForAsync(() => {
+            const scrollableSpy = jasmine.createSpyObj('DynamicPageService', ['expandHeader', 'collapseHeader']);
+            TestBed.configureTestingModule({
+                imports: [CommonModule, PlatformDynamicPageModule, ToolbarModule],
+                declarations: [TestComponent],
+                providers: [{ provide: DynamicPageService, useValue: scrollableSpy }]
+            }).compileComponents();
+        })
+    );
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestComponent);
@@ -100,24 +102,8 @@ describe('DynamicPageComponent default values', () => {
 
     it('should add correct classes to toolbar', async () => {
         fixture.detectChanges();
-        const toolbarContainer = fixture.debugElement.query(By.css('.' + CLASS_NAME.dynamicPageActionsContainer));
+        const toolbarContainer = fixture.debugElement.query(By.css('.fd-dynamic-page__toolbar-container'));
         expect(toolbarContainer).toBeTruthy();
-        expect(
-            toolbarContainer.nativeElement.classList.contains(CLASS_NAME.dynamicPageActionsContainerMedium)
-        ).toBeTruthy();
-
-        const globalActionsContainer: HTMLElement = fixture.debugElement.query(
-            By.css('.' + CLASS_NAME.dynamicPageGlobalActions)
-        ).nativeElement;
-        expect(
-            globalActionsContainer.classList.contains(CLASS_NAME.dynamicPageGlobalActionsToolbarMedium)
-        ).toBeTruthy();
-
-        const layoutActionsContainer = fixture.debugElement.query(By.css('.' + CLASS_NAME.dynamicPageLayoutActions))
-            .nativeElement;
-        expect(
-            layoutActionsContainer.classList.contains(CLASS_NAME.dynamicPageLayoutActionsToolbarMedium)
-        ).toBeTruthy();
     });
 
     it('should add correct classes to content', async () => {
@@ -142,19 +128,7 @@ describe('DynamicPageComponent default values', () => {
     });
     it('should set background styles', async () => {
         fixture.detectChanges();
-        expect(component.dynamicPageTitleComponent.background).toBe(undefined);
-        component.dynamicPage.background = 'solid';
-        component.dynamicPage.ngAfterContentInit();
-        fixture.detectChanges();
-        expect(component.dynamicPageTitleComponent.background).toBe('solid');
-        component.dynamicPage.background = 'transparent';
-        component.dynamicPage.ngAfterContentInit();
-        fixture.detectChanges();
-        expect(component.dynamicPageTitleComponent.background).toBe('transparent');
-        component.dynamicPage.background = 'list';
-        component.dynamicPage.ngAfterContentInit();
-        fixture.detectChanges();
-        expect(component.dynamicPageTitleComponent.background).toBe('list');
+        expect(component.dynamicPage.background).toBe('');
     });
     // TODO: Unskip after fix
     xit('should render content in view', () => {
@@ -201,7 +175,7 @@ describe('DynamicPageComponent default values', () => {
 })
 class TestTabbedComponent {
     size = 'medium';
-    background = '';
+    background = 'list';
     tabLabel1 = 'Tab 1';
     tabLabel2 = 'Tab 2';
     @ViewChild(DynamicPageComponent) dynamicPage: DynamicPageComponent;
@@ -211,13 +185,15 @@ describe('DynamicPageComponent tabbed values', () => {
     let fixture: ComponentFixture<TestTabbedComponent>;
     let dynamicPageComponent: DynamicPageComponent;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            imports: [CommonModule, PlatformDynamicPageModule, TabsModule],
-            declarations: [TestTabbedComponent],
-            providers: [{ provide: DynamicPageService }]
-        }).compileComponents();
-    }));
+    beforeEach(
+        waitForAsync(() => {
+            TestBed.configureTestingModule({
+                imports: [CommonModule, PlatformDynamicPageModule, TabsModule],
+                declarations: [TestTabbedComponent],
+                providers: [{ provide: DynamicPageService }]
+            }).compileComponents();
+        })
+    );
     beforeEach(() => {
         fixture = TestBed.createComponent(TestTabbedComponent);
         component = fixture.componentInstance;
@@ -237,16 +213,18 @@ describe('DynamicPageComponent tabbed values', () => {
         expect(tabsContainer.nativeElement.classList.contains(CLASS_NAME.dynamicPageTabsAddShadow)).toBeTruthy();
     });
 
-    it('should set default tab size', async () => {
-        const tabsContainer = fixture.debugElement.query(By.css('.fd-tabs'));
-        expect(tabsContainer.nativeElement.classList.contains(CLASS_NAME.dynamicPageTabsMedium)).toBeTruthy();
-    });
-
     it('should switch tabs', async () => {
         dynamicPageComponent.setSelectedTab('tab2');
         fixture.detectChanges();
         const tab2: HTMLElement = fixture.debugElement.query(By.css('#tab2')).nativeElement;
         expect(tab2.getAttribute('aria-expanded')).toBe('true');
+    });
+    it('should set list background styles', async () => {
+        fixture.detectChanges();
+        expect(component.dynamicPage.background).toBe('list');
+
+        const pageElement: HTMLElement = fixture.debugElement.query(By.css('.fd-dynamic-page')).nativeElement;
+        expect(pageElement.classList.contains('fd-dynamic-page--list-bg')).toBeTruthy();
     });
 });
 
@@ -259,7 +237,7 @@ describe('DynamicPageComponent tabbed values', () => {
 })
 class TestNonCollapsibleComponent {
     size = 'medium';
-    background = '';
+    background = 'transparent';
     @ViewChild(DynamicPageComponent) dynamicPage: DynamicPageComponent;
 }
 describe('DynamicPageComponent with collapsible set to false', () => {
@@ -267,13 +245,15 @@ describe('DynamicPageComponent with collapsible set to false', () => {
     let fixture: ComponentFixture<TestNonCollapsibleComponent>;
     let dynamicPage: DynamicPageComponent;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-            imports: [CommonModule, PlatformDynamicPageModule, TabsModule],
-            declarations: [TestNonCollapsibleComponent],
-            providers: [{ provide: DynamicPageService }]
-        }).compileComponents();
-    }));
+    beforeEach(
+        waitForAsync(() => {
+            TestBed.configureTestingModule({
+                imports: [CommonModule, PlatformDynamicPageModule, TabsModule],
+                declarations: [TestNonCollapsibleComponent],
+                providers: [{ provide: DynamicPageService }]
+            }).compileComponents();
+        })
+    );
     beforeEach(() => {
         fixture = TestBed.createComponent(TestNonCollapsibleComponent);
         component = fixture.componentInstance;
@@ -299,5 +279,12 @@ describe('DynamicPageComponent with collapsible set to false', () => {
         const contentEl: HTMLElement = fixture.debugElement.query(By.css('.fd-dynamic-page__collapsible-header'))
             .nativeElement;
         expect(contentEl.getAttribute('aria-hidden')).toBe('false');
+    });
+
+    it('should set transparent background styles', async () => {
+        fixture.detectChanges();
+        expect(component.dynamicPage.background).toBe('transparent');
+        const pageElement: HTMLElement = fixture.debugElement.query(By.css('.fd-dynamic-page')).nativeElement;
+        expect(pageElement.classList.contains('fd-dynamic-page--transparent-bg')).toBeTruthy();
     });
 });

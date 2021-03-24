@@ -1,3 +1,4 @@
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import {
     AfterContentInit,
     AfterViewInit,
@@ -10,17 +11,24 @@ import {
     HostBinding,
     Input,
     OnDestroy,
+    Optional,
     QueryList,
     Renderer2,
     ViewChild,
     ViewChildren,
     ViewEncapsulation
 } from '@angular/core';
-import { TabPanelComponent } from '@fundamental-ngx/core';
+import {
+    DynamicPageBackgroundType,
+    DynamicPageResponsiveSize,
+    dynamicPageWidthToSize,
+    FlexibleColumnLayoutComponent,
+    TabPanelComponent
+} from '@fundamental-ngx/core';
 import { fromEvent, Subscription } from 'rxjs';
 import { debounceTime, startWith, throttleTime } from 'rxjs/operators';
 import { BaseComponent } from '../base';
-import { CLASS_NAME, DynamicPageBackgroundType, DynamicPageResponsiveSize } from './constants';
+import { CLASS_NAME } from './constants';
 import {
     DynamicPageContentComponent,
     DynamicPageTabChangeEvent
@@ -61,7 +69,23 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
      * size can be `small`, `medium`, `large`, or `extra-large`.
      */
     @Input()
-    size: DynamicPageResponsiveSize = 'extra-large';
+    set size(size: DynamicPageResponsiveSize) {
+        this._size = size;
+        this._propagateSizeToChildren();
+    }
+
+    get size(): DynamicPageResponsiveSize {
+        return this._size;
+    }
+
+    /** Whether DynamicPage should have responsive sides spacing changing with Page window width.
+     * max-width: 599px                         - small
+     * min-width: 600px and max-width: 1023px   - medium
+     * min-width: 1024px and max-width: 1439px  - large
+     * min-width: 1440px                        - extra large
+     */
+    @Input()
+    autoResponsive = true;
 
     /**
      * user provided offset in px
@@ -91,6 +115,10 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
 
     @ViewChildren(TabPanelComponent)
     dynamicPageTabs: QueryList<TabPanelComponent>;
+
+    /** @hidden */
+    @ViewChild('dynamicPageElement')
+    _dynamicPageElement: ElementRef;
 
     /**
      * @hidden
@@ -124,6 +152,9 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
     tabs: DynamicPageContentComponent[] = [];
 
     /** @hidden */
+    _size: DynamicPageResponsiveSize = 'extra-large';
+
+    /** @hidden */
     private _distanceFromTop = 0;
 
     /** @hidden */
@@ -142,7 +173,9 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
         protected _cd: ChangeDetectorRef,
         private _elementRef: ElementRef<HTMLElement>,
         private _renderer: Renderer2,
-        private _dynamicPageService: DynamicPageService
+        private _dynamicPageService: DynamicPageService,
+        private _ruler: ViewportRuler,
+        @Optional() private _columnLayout: FlexibleColumnLayoutComponent
     ) {
         super(_cd);
         if (this._collapseValSubscription) {
@@ -156,34 +189,39 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
     /** @hidden */
     ngAfterContentInit(): void {
         this._listenToTabbedContentQueryListChanges();
-        if (this.background) {
-            this.titleComponent.background = this.background;
-            this.headerComponent.background = this.background;
-            this.contentComponent.background = this.background;
-        }
-        if (this.size) {
-            this.titleComponent.size = this.size;
-            this.headerComponent.size = this.size;
-            this.contentComponent.size = this.size;
-        }
-        this.headerCollapsible = this.headerComponent.collapsible;
+        this._propagateSizeToChildren();
+
+        this.headerCollapsible = this.headerComponent?.collapsible;
     }
 
     /**@hidden */
     ngAfterViewInit(): void {
         this._setTabStyles();
-        this._setToolbarStyles();
-        this.setContainerPositions();
+        this._setCurrentWindowSize();
+        this._listenOnResize();
 
         this._subscriptions.add(
             this.tabbedContent.changes.subscribe(() => {
                 this._setTabStyles();
+                this.setContainerPositions();
             })
         );
         if (this.headerComponent?.collapsible) {
             this._listenOnScroll();
-            this._listenOnResize();
         }
+
+        // if used with flexible column layout, listen for its layout changes as well
+        if (this._columnLayout && this.autoResponsive) {
+            this._listenToLayoutChange();
+        }
+        // some times the view is not fully rendered in the host application before which
+        // our content height calculation logic kicks in. Placing a setTimeout of 0 adds a this
+        // logic to a new browser event queue with the hope that the host app's view is rendered
+        // before this timedout method is called.
+        setTimeout(() => {
+            this.setContainerPositions();
+        }, 0);
+
         this._cd.detectChanges();
     }
 
@@ -202,7 +240,7 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
     }
 
     /**
-     * Snap the header to expand or collapse based on scrolling. Uses CDKScrollable.
+     * Snap the header to expand or collapse based on scrolling.
      */
     snapOnScroll(): void {
         this._listenOnScroll();
@@ -237,6 +275,30 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
      */
     elementRef(): ElementRef<HTMLElement> {
         return this._elementRef;
+    }
+
+    /** @hidden */
+    private _propagateSizeToChildren(): void {
+        if (this.titleComponent) {
+            this.titleComponent.size = this.size;
+        }
+    }
+
+    /** @hidden
+     * sets the current window size and propagates to children components, if autoResponsive enabled
+     */
+    private _setCurrentWindowSize(): void {
+        if (!this.autoResponsive) {
+            return;
+        }
+        const widthPx = this._ruler?.getViewportSize().width;
+        const size = dynamicPageWidthToSize(widthPx);
+
+        if (size !== this.size) {
+            this.size = size;
+            this._propagateSizeToChildren();
+            this._cd.markForCheck();
+        }
     }
 
     /**
@@ -276,14 +338,31 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
         }
     }
 
-    /** @hidden Listen for window resize and adjust tab and content positions accordingly */
+    /** @hidden 
+     * Listen for window resize and adjust tab and content positions accordingly 
+     */
     private _listenOnResize(): void {
         this._subscriptions.add(
             fromEvent(window, 'resize')
                 .pipe(debounceTime(60))
                 .subscribe(() => {
+                    this._setCurrentWindowSize();
                     this.setContainerPositions();
                 })
+        );
+    }
+
+    /** @hidden
+     * Functionality handling column layout changes,
+     * - recalculate height of content element
+     * - recheck size depending on width of DynamicPage
+     */
+    private _listenToLayoutChange(): void {
+        this._subscriptions.add(
+            this._columnLayout.layoutChange.pipe(debounceTime(1500)).subscribe((_) => {
+                this._setCurrentWindowSize();
+                this.setContainerPositions();
+            })
         );
     }
 
@@ -337,10 +416,6 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
             this._renderer.setStyle(this.header.nativeElement, 'z-index', 2);
         }
 
-        if (this.size) {
-            this._setTabsSize(this.size, tabList);
-        }
-
         if (!this.headerComponent?.collapsible) {
             return;
         }
@@ -354,106 +429,6 @@ export class DynamicPageComponent extends BaseComponent implements AfterContentI
                 pinCollapseShadowElement,
                 CLASS_NAME.dynamicPageCollapsibleHeaderPinCollapseNoShadow
             );
-        }
-    }
-
-    /**
-     * @hidden
-     * add size classes to tabs
-     * @param sizeType
-     * @param element
-     */
-    _setTabsSize(sizeType: DynamicPageResponsiveSize, element: Element): void {
-        switch (sizeType) {
-            case 'small':
-                this._addClassNameToCustomElement(element, CLASS_NAME.dynamicPageTabsSmall);
-                break;
-            case 'medium':
-                this._addClassNameToCustomElement(element, CLASS_NAME.dynamicPageTabsMedium);
-
-                break;
-            case 'large':
-                this._addClassNameToCustomElement(element, CLASS_NAME.dynamicPageTabsLarge);
-                break;
-            case 'extra-large':
-            default:
-                this._addClassNameToCustomElement(element, CLASS_NAME.dynamicPageTabsExtraLarge);
-                break;
-        }
-    }
-
-    /**
-     * @hidden
-     * add classes to projected toolbars
-     */
-    private _setToolbarStyles(): void {
-        // adds global actions classes to its toolbar
-        const globalToolbarEl = this._elementRef.nativeElement.querySelector(
-            'fdp-dynamic-page-global-actions .fd-toolbar'
-        );
-        if (globalToolbarEl) {
-            addClassNameToElement(this._renderer, globalToolbarEl, CLASS_NAME.dynamicPageGlobalActions);
-        }
-
-        const layoutToolbarEl = this._elementRef.nativeElement.querySelector(
-            'fdp-dynamic-page-layout-actions .fd-toolbar'
-        );
-        if (layoutToolbarEl) {
-            addClassNameToElement(this._renderer, layoutToolbarEl, CLASS_NAME.dynamicPageLayoutActions);
-        }
-
-        const actionsContainerEl = this._elementRef.nativeElement.querySelector(
-            '.' + CLASS_NAME.dynamicPageActionsContainer
-        );
-        // set toolbar sizes
-        this._setToolbarsSize(this.size, actionsContainerEl, globalToolbarEl, layoutToolbarEl);
-    }
-
-    /**
-     * @hidden
-     * add size classes to toolbars
-     * @param sizeType
-     * @param element
-     */
-    _setToolbarsSize(
-        sizeType: DynamicPageResponsiveSize,
-        actionsContainer: Element,
-        globalActions: Element,
-        layoutActions: Element
-    ): void {
-        switch (sizeType) {
-            case 'small':
-                if (globalActions) {
-                    this._addClassNameToCustomElement(globalActions, CLASS_NAME.dynamicPageGlobalActionsToolbarSmall);
-                }
-                break;
-            case 'medium':
-                if (actionsContainer) {
-                    this._addClassNameToCustomElement(actionsContainer, CLASS_NAME.dynamicPageActionsContainerMedium);
-                    const globalActionsEl: HTMLElement = actionsContainer.querySelector(
-                        'fdp-dynamic-page-global-actions'
-                    );
-                    const layoutActionsEl: HTMLElement = actionsContainer.querySelector(
-                        'fdp-dynamic-page-layout-actions'
-                    );
-                    if (globalActionsEl) {
-                        globalActionsEl.style.order = '2';
-                    }
-                    if (layoutActionsEl) {
-                        layoutActionsEl.style.order = '1';
-                    }
-                }
-                if (globalActions) {
-                    this._addClassNameToCustomElement(globalActions, CLASS_NAME.dynamicPageGlobalActionsToolbarMedium);
-                }
-                if (layoutActions) {
-                    this._addClassNameToCustomElement(layoutActions, CLASS_NAME.dynamicPageLayoutActionsToolbarMedium);
-                }
-                break;
-            case 'large':
-            case 'extra-large':
-            default:
-                break;
         }
     }
 

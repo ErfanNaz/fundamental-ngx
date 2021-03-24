@@ -1,16 +1,116 @@
-<div class="fd-dynamic-page__main-container">
-    <div class="fd-dynamic-page__breadcrumb-title-container" #breadcrumbTitleContainer>
-        <nav aria-label="Breadcrumbs"><ng-content select="fd-breadcrumb"></ng-content></nav>
-        <div class="fd-dynamic-page__title-container">
-            <div class="fd-dynamic-page__title" #titleRef>{{ title }}</div>
-            <ng-content select="fdp-dynamic-page-key-info"></ng-content>
+<ng-container *ngIf="!_hasImageFacet">
+    <div class="fd-dynamic-page__main-container">
+        <div class="fd-dynamic-page__breadcrumb-title-container" #breadcrumbTitleContainer>
+            <div class="fd-dynamic-page__breadcrumb-container">
+                <nav
+                    aria-label="Breadcrumbs"
+                    class="fd-dynamic-page__breadcrumb-wrapper"
+                    (click)="stopPropagation($event)"
+                >
+                    <ng-container *ngTemplateOutlet="breadcrumbTemplate"></ng-container>
+                </nav>
+                <ng-container *ngIf="_actionsSquashed">
+                    <ng-container *ngTemplateOutlet="dynamicPageLayoutActionsRef"></ng-container>
+                </ng-container>
+            </div>
+            <div class="fd-dynamic-page__title-container">
+                <span class="fd-dynamic-page__title" #titleRef>
+                    {{ title }}
+                </span>
+
+                <ng-container *ngTemplateOutlet="titleContentTemplate"></ng-container>
+
+                <div class="fd-dynamic-page__toolbar-container" (click)="stopPropagation($event)">
+                    <ng-container *ngTemplateOutlet="dynamicPageGlobalActionsRef"></ng-container>
+                    <ng-container *ngIf="!_actionsSquashed">
+                        <ng-container *ngTemplateOutlet="dynamicPageLayoutActionsRef"></ng-container>
+                    </ng-container>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="fd-dynamic-page__actions-container" #actionsContainer>
-        <div class="fd-dynamic-page__toolbar-container">
-            <ng-content select="fdp-dynamic-page-global-actions"></ng-content>
-            <ng-content select="fdp-dynamic-page-layout-actions"></ng-content>
+    <div class="fd-dynamic-page__subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+</ng-container>
+
+<ng-container *ngIf="_hasImageFacet">
+    <div class="fd-dynamic-page__main-container">
+        <div class="fd-dynamic-page__breadcrumb-title-container">
+            <div class="fd-dynamic-page__breadcrumb-container">
+                <nav
+                    aria-label="Breadcrumbs"
+                    class="fd-dynamic-page__breadcrumb-wrapper"
+                    (click)="stopPropagation($event)"
+                >
+                    <ng-container *ngTemplateOutlet="breadcrumbTemplate"></ng-container>
+                </nav>
+                <ng-container *ngIf="_actionsSquashed">
+                    <ng-container *ngTemplateOutlet="dynamicPageLayoutActionsRef"></ng-container>
+                </ng-container>
+            </div>
+            <div class="fd-dynamic-page__title-container">
+                <ng-container *ngIf="_isHeaderCollapsed">
+                    <ng-content select="fd-facet"></ng-content>
+                    <div class="fd-dynamic-page__title-subtitle-container">
+                        <div class="fd-dynamic-page__title-container">
+                            <span class="fd-dynamic-page__title">
+                                {{ title }}
+                            </span>
+                            <ng-container *ngTemplateOutlet="titleContentTemplate"></ng-container>
+                        </div>
+                        <div class="fd-dynamic-page__subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="!_isHeaderCollapsed">
+                    <span class="fd-dynamic-page__title" #titleRef>
+                        {{ title }}
+                    </span>
+                    <ng-container *ngTemplateOutlet="titleContentTemplate"></ng-container>
+                </ng-container>
+
+                <div class="fd-dynamic-page__toolbar-container" (click)="stopPropagation($event)">
+                    <ng-container *ngTemplateOutlet="dynamicPageGlobalActionsRef"></ng-container>
+                    <ng-container *ngIf="!_actionsSquashed">
+                        <ng-container *ngTemplateOutlet="dynamicPageLayoutActionsRef"></ng-container>
+                    </ng-container>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<div class="fd-dynamic-page__subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+    <ng-container *ngIf="!_isHeaderCollapsed">
+        <div class="fd-dynamic-page__subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+    </ng-container>
+</ng-container>
+
+<ng-template #dynamicPageGlobalActionsRef>
+    <ng-content select="fdp-dynamic-page-global-actions"></ng-content>
+</ng-template>
+<ng-template #dynamicPageLayoutActionsRef>
+    <ng-content select="fdp-dynamic-page-layout-actions"></ng-content>
+</ng-template>
+<ng-template #breadcrumbTemplate>
+    <ng-content select="fd-breadcrumb"></ng-content>
+</ng-template>
+<ng-template #titleContentTemplate>
+    <ng-container *ngIf="_size === 'small'">
+        <fd-toolbar
+            fdType="transparent"
+            (click)="$event.stopPropagation()"
+            class="fd-dynamic-page__toolbar--content"
+            [clearBorder]="true"
+            [forceOverflow]="true"
+            [shouldOverflow]="true"
+            [size]="!compact ? 'cozy' : 'compact'"
+        >
+            <div fd-toolbar-item>
+                <ng-container *ngTemplateOutlet="templateContentRef"></ng-container>
+            </div>
+        </fd-toolbar>
+    </ng-container>
+
+    <ng-container *ngIf="_size !== 'small'">
+        <ng-container *ngTemplateOutlet="templateContentRef"></ng-container>
+    </ng-container>
+</ng-template>
+<ng-template #templateContentRef>
+    <ng-content select="fdp-dynamic-page-key-info"></ng-content>
+</ng-template>
