@@ -34,6 +34,7 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             width: 100%;
             padding-top: $fd-footer-padding-top;
             display: flex;
+            position: relative;
         }
 
         width: 100%;
@@ -76,8 +77,13 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             text-align: right;
             display: inline;
             width: 30%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
             @include fd-rtl() {
                 text-align: left;
+                left: 0;
+                right: auto;
             }
         }
     }
@@ -91,6 +97,7 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             display: flex;
             width: 100%;
             padding-top: $fd-footer-padding-top;
+            position: relative;
         }
 
         width: 100%;
@@ -132,8 +139,13 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             text-align: right;
             display: inline;
             width: 30%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
             @include fd-rtl() {
                 text-align: left;
+                left: 0;
+                right: auto;
             }
         }
     }

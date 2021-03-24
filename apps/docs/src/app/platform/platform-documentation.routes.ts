@@ -64,8 +64,8 @@ export const ROUTES: Routes = [
             {
                 path: 'page-footer',
                 loadChildren: () =>
-                    import('./component-docs/platform-footer/platform-footer.module').then(
-                        (m) => m.PlatformDocFooterModule
+                    import('./component-docs/platform-page-footer/platform-page-footer.module').then(
+                        (m) => m.PlatformDocPageFooterModule
                     )
             },
             {

@@ -2,13 +2,13 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlatformLinkModule } from '../link/link.module';
 
-import { FooterComponent } from './footer.component';
-import { PlatformFooterModule } from './footer.module';
+import { PlatformFooterComponent } from './page-footer.component';
+import { PlatformPageFooterModule } from './page-footer.module';
 
 @Component({
-    selector: 'fdp-link-test',
+    selector: 'fdp-footer-test',
     template: `
-        <fdp-footer [logo]="logo" [content]="content" [copyright]="copyright"></fdp-footer>
+        <fdp-page-footer [logo]="logo" [content]="content" [copyright]="copyright"></fdp-page-footer>
         <ng-template #logo>
             <img id="fd-logo-1" src="/assets/images/logo-sap.svg" alt="" />
         </ng-template>
@@ -29,7 +29,7 @@ import { PlatformFooterModule } from './footer.module';
     `
 })
 class PlatformFooterTestComponent {
-    @ViewChild(FooterComponent, { static: true, read: ElementRef })
+    @ViewChild(PlatformFooterComponent, { static: true, read: ElementRef })
     footerElementRef: ElementRef;
 }
 
@@ -40,8 +40,8 @@ describe('FooterComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [PlatformFooterModule, PlatformLinkModule],
-            declarations: [FooterComponent, PlatformFooterTestComponent]
+            imports: [PlatformPageFooterModule, PlatformLinkModule],
+            declarations: [PlatformFooterComponent, PlatformFooterTestComponent]
         }).compileComponents();
     });
 

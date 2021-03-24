@@ -1,12 +1,12 @@
 import { Component, Input, TemplateRef, ViewEncapsulation } from '@angular/core';
 
 @Component({
-    selector: 'fdp-footer',
-    templateUrl: './footer.component.html',
-    styleUrls: ['./footer.component.scss'],
+    selector: 'fdp-page-footer',
+    templateUrl: './page-footer.component.html',
+    styleUrls: ['./page-footer.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class FooterComponent {
+export class PlatformFooterComponent {
     /** logo template accpets the generic html */
     @Input()
     logo: TemplateRef<any>;
