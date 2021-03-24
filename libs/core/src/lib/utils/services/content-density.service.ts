@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { distinctUntilChanged, startWith } from 'rxjs/operators';
 
 export type ContentDensity = 'cozy' | 'condensed' | 'compact';
 
@@ -8,9 +9,12 @@ export type ContentDensity = 'cozy' | 'condensed' | 'compact';
  */
 @Injectable()
 export class ContentDensityService {
-    contentDensity: BehaviorSubject<ContentDensity>;
+    contentDensity = new BehaviorSubject<ContentDensity>('compact');
 
-    constructor() {
-        this.contentDensity = new BehaviorSubject('cozy');
+    get _contentDensityListener(): Observable<ContentDensity> {
+        return this.contentDensity.pipe(
+            startWith(this.contentDensity.getValue()),
+            distinctUntilChanged()
+        );
     }
 }

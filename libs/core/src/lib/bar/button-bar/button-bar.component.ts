@@ -43,10 +43,6 @@ export class ButtonBarComponent extends BaseButton implements OnInit, OnDestroy 
     @Input()
     fdType: ButtonType = 'transparent';
 
-    /** Whether or not the button is compact. */
-    @Input()
-    compact?: boolean;
-
     /** @hidden */
     @HostBinding('class.fd-bar__element')
     _barElement = true;

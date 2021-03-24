@@ -7,12 +7,13 @@ import {
     OnChanges, OnDestroy,
     OnInit,
     Optional,
+    SimpleChanges,
     ViewEncapsulation
 } from '@angular/core';
 import { applyCssClass, ContentDensityService, CssClassBuilder } from '../utils/public_api';
 import { BaseButton } from './base-button';
 import { Subject, Subscription } from 'rxjs';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { takeUntil, takeWhile } from 'rxjs/operators';
 
 
 /**
@@ -44,6 +45,9 @@ export class ButtonComponent extends BaseButton implements OnChanges, CssClassBu
     class = '';
 
     /** @hidden */
+    private _isCompactSet = false;
+
+    /** @hidden */
     private _onDestroy = new Subject<void>();
 
     /** @hidden */
@@ -55,37 +59,29 @@ export class ButtonComponent extends BaseButton implements OnChanges, CssClassBu
         private _changeDetectorRef: ChangeDetectorRef,
         @Optional() private _contentDensityService: ContentDensityService
     ) {
-        super()
+        super();
     }
 
-    /** Function runs when component is initialized
+    /**
+     * Function runs when component is initialized
      * function should build component css class
      * function should build css style
      */
-    public ngOnChanges(): void {
+    public ngOnChanges(changes: SimpleChanges): void {
+        if ('compact' in changes && changes['compact'].currentValue !== undefined) {
+            this._isCompactSet = true;
+        }
         this.buildComponentCssClass();
     }
 
     public ngOnInit(): void {
-        if (this.compact === undefined && this._contentDensityService) {
-
-
-            // First Option
-            // this.compact = this._contentDensityService.contentDensity.getValue() !== 'cozy';
-            // this._subscriptions.add(this._contentDensityService.contentDensity.subscribe(density => {
-            //     this.compact = density !== 'cozy';
-            //     this.buildComponentCssClass();
-            // }));
-
-            // Second Option
-            this._contentDensityService.contentDensity.pipe(
-                startWith(this._contentDensityService.contentDensity.getValue()),
-                takeUntil(this._onDestroy)
-            ).subscribe(density => {
-                this.compact = density !== 'cozy';
-                this.buildComponentCssClass();
-            });
-        }
+        this._contentDensityService._contentDensityListener.pipe(
+            takeUntil(this._onDestroy),
+            takeWhile(_ => !this._isCompactSet)
+        ).subscribe(density => {
+            this.compact = density !== 'cozy';
+            this.buildComponentCssClass();
+        });
         this.buildComponentCssClass();
     }
 
