@@ -162,6 +162,40 @@ describe('ResizableCardItemComponent', () => {
         expect(stepChanged).toHaveBeenCalled();
     });
 
+    it('should revert back the resize when width resize offset is not reached', () => {
+        const mouseEvent1 = new MouseEvent('resize', { clientX: 200, clientY: 40 });
+        const card = component.items.toArray()[1];
+        const stepChanged = spyOn(card.stepChange, 'emit');
+
+        card.onMouseDown(mouseEvent1, 'both');
+        const mouseEvent2 = new MouseEvent('resize', { clientX: 210, clientY: 40 });
+        card.onMouseMove(mouseEvent2);
+        card.onMouseUp(mouseEvent2);
+
+        fixture.detectChanges();
+
+        expect(card.cardWidth).toEqual(656);
+        expect(card.cardHeight).toEqual(304);
+        expect(stepChanged).not.toHaveBeenCalled();
+    });
+
+    it('should revert back the resize when height resize offset is not reached', () => {
+        const mouseEvent1 = new MouseEvent('resize', { clientX: 200, clientY: 40 });
+        const card = component.items.toArray()[1];
+        const stepChanged = spyOn(card.stepChange, 'emit');
+
+        card.onMouseDown(mouseEvent1, 'both');
+        const mouseEvent2 = new MouseEvent('resize', { clientX: 200, clientY: 45 });
+        card.onMouseMove(mouseEvent2);
+        card.onMouseUp(mouseEvent2);
+
+        fixture.detectChanges();
+
+        expect(card.cardWidth).toEqual(656);
+        expect(card.cardHeight).toEqual(304);
+        expect(stepChanged).not.toHaveBeenCalled();
+    });
+
     it('should adjust max card width 320 for sm layout size', () => {
         const card = component.items.toArray()[1];
         card.cardWidthColSpan = 6; // four column width card

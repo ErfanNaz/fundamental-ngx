@@ -22,6 +22,8 @@ export type ResizeDirection = 'vertical' | 'horizontal' | 'both';
 export const HorizontalResizeStep = 320;
 export const verticalResizeStep = 16;
 export const gap = 16;
+export const horizontalResizeOffset = 20;
+export const verticalResizeOffset = 10;
 
 let cardRank = 1;
 let cardUniqueId = 0;
@@ -111,10 +113,6 @@ export class ResizableCardItemComponent implements OnInit, OnDestroy, FocusableO
     @Input()
     @HostBinding('style.top.px')
     top = 0;
-
-    /** @hidden focusable resize-card item */
-    @HostBinding()
-    tabindex = 0;
 
     /** @hidden while resizing this value will change to a greater value */
     @HostBinding('style.z-index')
@@ -289,23 +287,29 @@ export class ResizableCardItemComponent implements OnInit, OnDestroy, FocusableO
             return;
         }
 
-        // increase/decrease width of card in order of 20rem
-        if (Math.abs(this.cardWidth - this._prevCardWidth) > 0) {
-            this._horizontalStepResizing();
-        }
+        // if resize offset reached then only resize complete otherwise revert to original state
+        if (this._resizeOffsetReached()) {
+            // increase/decrease width of card in order of 20rem
+            if (Math.abs(this.cardWidth - this._prevCardWidth) > 0) {
+                this._horizontalStepResizing();
+            }
 
-        // increase/decrease height of card in order of 1rem
-        if (Math.abs(this.cardHeight - this._prevCardHeight) > 0) {
-            this._verticalStepResizing();
-        }
+            // increase/decrease height of card in order of 1rem
+            if (Math.abs(this.cardHeight - this._prevCardHeight) > 0) {
+                this._verticalStepResizing();
+            }
 
-        this._stopResizing();
-        this._cd.markForCheck();
+            this._stopResizing();
+            this._cd.markForCheck();
+        }
     }
 
     /** Sets focus on the element */
     focus(): void {
-        this._elementRef.nativeElement.focus();
+        const header = this._elementRef.nativeElement.querySelector('.fd-card__header');
+        if (header) {
+            header.focus();
+        }
     }
 
     /** Shows resize icon */
@@ -324,19 +328,15 @@ export class ResizableCardItemComponent implements OnInit, OnDestroy, FocusableO
     getMaxColSpan(layoutSize: string): number {
         switch (layoutSize) {
             case 'sm':
-                // one column span max-width
                 this._maxColumn = 1;
                 break;
             case 'md':
-                // two column span max-width
                 this._maxColumn = 2;
                 break;
             case 'lg':
-                // three column span max-width
                 this._maxColumn = 3;
                 break;
             case 'xl':
-                // four column span max-width
                 this._maxColumn = 4;
                 break;
         }
@@ -369,8 +369,29 @@ export class ResizableCardItemComponent implements OnInit, OnDestroy, FocusableO
         this.resizable = this._config.resizable || this.resizable;
     }
 
+    /** @hidden Returns true when resize offset is crossed */
+    private _resizeOffsetReached(): boolean {
+        let offsetReached = true;
+        if (
+            Math.abs(this.cardWidth - this._prevCardWidth) < horizontalResizeOffset &&
+            Math.abs(this.cardHeight - this._prevCardHeight) < verticalResizeOffset
+        ) {
+            offsetReached = false;
+            this.cardWidth = this._prevCardWidth;
+            this.cardHeight = this._prevCardHeight;
+
+            // stop resizing steps, without raising resize complete event
+            if (this._resize) {
+                this._resize = false;
+                this.zIndex = 0;
+                this.showBorder = false;
+            }
+        }
+        return offsetReached;
+    }
+
     /**
-     * make horizontal resize only on step of 20rem
+     * @hidden make horizontal resize only on step of 20rem
      * raises stepChange event
      */
     private _horizontalStepResizing(): void {
@@ -396,7 +417,7 @@ export class ResizableCardItemComponent implements OnInit, OnDestroy, FocusableO
     }
 
     /**
-     * make vertical resize only on step of 1rem
+     * @hidden make vertical resize only on step of 1rem
      * raises stepChange event
      */
     private _verticalStepResizing(): void {

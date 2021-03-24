@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, TemplateRef } from '@angular/core';
-import { DialogService, ResizableCardLayoutConfig, LayoutSize } from '@fundamental-ngx/core';
+import {
+    DialogService,
+    ResizableCardLayoutConfig,
+    LayoutSize,
+    ResizedEvent,
+    ResizingEvent
+} from '@fundamental-ngx/core';
 
 @Component({
     selector: 'fd-resizable-card-layout-example',
@@ -18,7 +24,27 @@ export class ResizableCardLayoutExampleComponent implements OnInit {
     openDialog(dialogTemplate: TemplateRef<any>): void {
         this._dialogService.open(dialogTemplate, {
             mobile: true,
-            verticalPadding: true,
+            verticalPadding: true
         });
+    }
+
+    onCardResizing(event: ResizingEvent): void {
+        console.log('onCardResizing event emitted: ', event);
+    }
+
+    onCardResized(event: ResizedEvent): void {
+        console.log('onCardResized event emitted: ', event);
+    }
+
+    onStepChange(event: ResizedEvent): void {
+        console.log('onStepChange event emitted: ', event);
+    }
+
+    onMiniHeaderReached(event: ResizedEvent): void {
+        console.log('onMiniHeaderReached event emitted: ', event);
+    }
+
+    onMiniContentReached(event: ResizedEvent): void {
+        console.log('onMiniContentReached event emitted: ', event);
     }
 }
