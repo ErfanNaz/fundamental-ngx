@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.29.0-rc.49](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.48...v0.29.0-rc.49) (2021-03-24)
+
+## [0.29.0-rc.48](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.47...v0.29.0-rc.48) (2021-03-24)
+
+## [0.29.0-rc.47](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.46...v0.29.0-rc.47) (2021-03-24)
+
+
+### Bug Fixes
+
+* (Core) updating the focusable object of status indicator and adding clickable ([#4942](https://github.com/SAP/fundamental-ngx/issues/4942)) ([a092cbc](https://github.com/SAP/fundamental-ngx/commit/a092cbcea130ca9d155c9784875ac3de67a52b41))
+
+## [0.29.0-rc.46](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.45...v0.29.0-rc.46) (2021-03-22)
+
+
+### Bug Fixes
+
+* add fix for FCL animation and example with Dynamic Page usage and layout controls ([#4960](https://github.com/SAP/fundamental-ngx/issues/4960)) ([2ed1b99](https://github.com/SAP/fundamental-ngx/commit/2ed1b9903614f0be401cb9394442e006b9cd667b))
+
+## [0.29.0-rc.45](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.44...v0.29.0-rc.45) (2021-03-21)
+
+## [0.29.0-rc.44](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.43...v0.29.0-rc.44) (2021-03-21)
+
+## [0.29.0-rc.43](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.42...v0.29.0-rc.43) (2021-03-21)
+
+## [0.29.0-rc.42](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.41...v0.29.0-rc.42) (2021-03-20)
+
 ## [0.29.0-rc.41](https://github.com/SAP/fundamental-ngx/compare/v0.29.0-rc.40...v0.29.0-rc.41) (2021-03-19)
 
 
