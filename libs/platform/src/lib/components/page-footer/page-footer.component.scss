@@ -27,7 +27,7 @@ $fd-footer-padding-top-inline: 0.25rem !default;
         }
     }
 }
-@media (min-width: 1440px) {
+@media (min-width: 1025px) {
     .fdp-footer {
         @include fd-reset();
         &__container {
@@ -75,11 +75,14 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             font-family: '72', '72full', Arial, Helvetica, sans-serif;
             font-size: $fd-footer-font-size;
             text-align: right;
-            display: inline;
-            width: 30%;
+            display: -webkit-box;
+            width: 32%;
             position: absolute;
             bottom: 0;
             right: 0;
+            overflow: hidden;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             @include fd-rtl() {
                 text-align: left;
                 left: 0;
@@ -89,7 +92,7 @@ $fd-footer-padding-top-inline: 0.25rem !default;
     }
 }
 
-@media (min-width: 1024px) and (max-width: 1440px) {
+@media (min-width: 769px) and (max-width: 1024px) {
     .fdp-footer {
         @include fd-reset();
 
@@ -137,11 +140,14 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             font-family: var(--sapFontFamily, '72', '72full', Arial, Helvetica, sans-serif);
             font-size: 0.875rem;
             text-align: right;
-            display: inline;
+            display: -webkit-box;
             width: 30%;
             position: absolute;
             bottom: 0;
             right: 0;
+            overflow: hidden;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             @include fd-rtl() {
                 text-align: left;
                 left: 0;
@@ -151,7 +157,7 @@ $fd-footer-padding-top-inline: 0.25rem !default;
     }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 361px) and (max-width: 768px) {
     .fdp-footer {
         @include fd-reset();
 
@@ -196,13 +202,17 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             color: $fd-copy-right-font-color;
             font-family: var(--sapFontFamily, '72', '72full', Arial, Helvetica, sans-serif);
             font-size: 0.875rem;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             @include fd-rtl() {
                 text-align: left;
             }
         }
     }
 }
-@media (min-width: 360px) and (max-width: 767px) {
+@media (max-width: 360px) {
     .fdp-footer {
         @include fd-reset();
 
@@ -246,6 +256,10 @@ $fd-footer-padding-top-inline: 0.25rem !default;
             font-family: var(--sapFontFamily, '72', '72full', Arial, Helvetica, sans-serif);
             font-size: 0.875rem;
             padding-top: $fd-footer-padding-top;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             @include fd-rtl() {
                 text-align: left;
             }
