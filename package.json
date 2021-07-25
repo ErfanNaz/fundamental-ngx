@@ -161,7 +161,7 @@
     "axe-html-reporter": "2.2.0",
     "babel-loader": "8.2.2",
     "chromedriver": "91.0.0",
-    "codelyzer": "6.0.1",
+    "codelyzer": "6.0.2",
     "coveralls": "3.1.0",
     "dotenv": "8.2.0",
     "fs-extra": "9.1.0",
